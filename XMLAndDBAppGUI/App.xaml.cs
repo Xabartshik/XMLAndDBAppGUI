@@ -12,7 +12,6 @@ namespace XMLAndDBAppGUI
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            MessageBox.Show($"Запуск","Запуск", MessageBoxButton.OK);
             DispatcherUnhandledException += (s, args) =>
             {
                 MessageBox.Show($"Критическая ошибка: {args.Exception.Message}\n\n{args.Exception.StackTrace}",
