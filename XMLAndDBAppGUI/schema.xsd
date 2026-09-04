@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
+  <xs:element name="ZL_LIST">
+    <xs:complexType>
+      <xs:sequence>
+        
+        <!-- Заголовок файла (ZGLV) -->
+        <xs:element name="ZGLV">
+          <xs:complexType>
+            <xs:sequence>
+              
+              <!-- Версия взаимодействия: О, T(5), значение "1.1" -->
+              <xs:element name="VERSION" fixed="1.1">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="5"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+
+              <!-- Дата: О, D (ГГГГ-ММ-ДД) -->
+              <xs:element name="DATA" type="xs:date" />
+
+              <!-- Имя файла: О, T(26) -->
+              <xs:element name="FILENAME">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="26"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+
+              <!-- Год проведения: О, N(4) -->
+              <xs:element name="YEAR">
+                <xs:simpleType>
+                  <xs:restriction base="xs:positiveInteger">
+                    <xs:totalDigits value="4"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+
+              <!-- Реестровый номер МО: О, T(6) -->
+              <xs:element name="CODE_MO">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="6"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <!-- Мероприятия (EVENT): ОМ -->
+        <xs:element name="EVENT" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+
+              <!-- Тип профилактического мероприятия: О, T(3) -->
+              <xs:element name="DISP">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="ДВ1"/>
+                    <xs:enumeration value="ДВ3"/>
+                    <xs:enumeration value="ОПВ"/>
+                    <xs:enumeration value="ДН"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+
+              <!-- Количество сведений о мужчинах: О, N(5) -->
+              <xs:element name="KOL_M">
+                <xs:simpleType>
+                  <xs:restriction base="xs:nonNegativeInteger">
+                    <xs:totalDigits value="5"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+
+              <!-- Количество сведений о женщинах: О, N(5) -->
+              <xs:element name="KOL_W">
+                <xs:simpleType>
+                  <xs:restriction base="xs:nonNegativeInteger">
+                    <xs:totalDigits value="5"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+
+              <!-- Данные пациентов (PERS): ОМ -->
+              <xs:element name="PERS" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+
+                    <!-- Номер позиции записи: О, N(8) -->
+                    <xs:element name="N_ZAP">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:positiveInteger">
+                          <xs:totalDigits value="8"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Код записи о застрахованном лице: О, T(36) -->
+                    <xs:element name="ID_PAC">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:maxLength value="36"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Пол застрахованного лица: О, N(1), значения 1 - Мужской, 2 - Женский -->
+                    <xs:element name="W">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:positiveInteger">
+                          <xs:enumeration value="1"/>
+                          <xs:enumeration value="2"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Дата рождения: О, D (ГГГГ-ММ-ДД) -->
+                    <xs:element name="DR" type="xs:date" />
+
+                    <!-- Реестровый номер СМО: О, T(5) -->
+                    <xs:element name="SMO">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:maxLength value="5"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Тип документа ОМС: О, N(1) -->
+                    <xs:element name="VPOLIS">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:positiveInteger">
+                          <xs:totalDigits value="1"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Серия документа ОМС: У, T(10) -->
+                    <xs:element name="SPOLIS" minOccurs="0">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:maxLength value="10"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Номер документа ОМС: О, T(16) -->
+                    <xs:element name="NPOLIS">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:maxLength value="16"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Контакты застрахованного лица (CONTACTS): У (ВЕРНУЛИ ПОСЛЕ NPOLIS) -->
+                    <xs:element name="CONTACTS" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="PHONE_F" minOccurs="0" maxOccurs="unbounded">
+                            <xs:simpleType>
+                              <xs:restriction base="xs:string">
+                                <xs:pattern value="8\d{10}"/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+
+                          <xs:element name="PHONE_M" minOccurs="0" maxOccurs="unbounded">
+                            <xs:simpleType>
+                              <xs:restriction base="xs:string">
+                                <xs:pattern value="8\d{10}"/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+
+                          <xs:element name="EMAIL" minOccurs="0" maxOccurs="unbounded">
+                            <xs:simpleType>
+                              <xs:restriction base="xs:string">
+                                <xs:maxLength value="50"/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+
+                          <xs:element name="ADDRESS" minOccurs="0">
+                            <xs:simpleType>
+                              <xs:restriction base="xs:string">
+                                <xs:maxLength value="250"/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+
+                    <!-- Квартал: У, N(1), значения 1-4 -->
+                    <xs:element name="QUARTER" minOccurs="0">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:positiveInteger">
+                          <xs:maxInclusive value="4"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Месяц: У, N(2), значения 1-12 -->
+                    <xs:element name="MONTH" minOccurs="0">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:positiveInteger">
+                          <xs:maxInclusive value="12"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Код подразделения: О, T(3) -->
+                    <xs:element name="LPU1">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:maxLength value="3"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Код терапевтического участка: О, T(10) -->
+                    <xs:element name="DEPTH">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:maxLength value="10"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- СНИЛС участкового врача: О, T(11) без разделителей -->
+                    <xs:element name="SS_DOC">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:pattern value="\d{11}"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- СНИЛС врача ДН: У, T(11) без разделителей -->
+                    <xs:element name="SS_DOC_D" minOccurs="0">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:pattern value="\d{11}"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Специальность врача ДН: У, N(3) -->
+                    <xs:element name="PRVS_D" minOccurs="0">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:nonNegativeInteger">
+                          <xs:totalDigits value="3"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Диагноз заболевания: У, T(3) -->
+                    <xs:element name="DS_D" minOccurs="0">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:maxLength value="3"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Место проведения ДН: У, N(1), значения 1 - в МО, 2 - на дому -->
+                    <xs:element name="PLACE_D" minOccurs="0">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:positiveInteger">
+                          <xs:enumeration value="1"/>
+                          <xs:enumeration value="2"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Код застрахованного лица ТФОМС: У, T(36) -->
+                    <xs:element name="ID_TFOMS" minOccurs="0">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:maxLength value="36"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                    <!-- Служебное поле: У, T(250) -->
+                    <xs:element name="COMMENT" minOccurs="0">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:maxLength value="250"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

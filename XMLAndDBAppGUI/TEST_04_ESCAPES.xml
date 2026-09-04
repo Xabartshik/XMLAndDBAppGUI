@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<ZL_LIST>
+	<ZGLV>
+		<VERSION>1.1</VERSION>
+		<DATA>2026-09-04</DATA>
+		<FILENAME>TEST_04_ESCAPES</FILENAME>
+		<YEAR>2026</YEAR>
+		<CODE_MO>750000</CODE_MO>
+	</ZGLV>
+	<EVENT>
+		<DISP>ДВ1</DISP>
+		<KOL_M>1</KOL_M>
+		<KOL_W>0</KOL_W>
+		<PERS>
+			<N_ZAP>1</N_ZAP>
+			<ID_PAC>1</ID_PAC>
+			<W>1</W>
+			<DR>1986-11-21</DR>
+			<SMO>75001</SMO>
+			<VPOLIS>3</VPOLIS>
+			<NPOLIS>1111111111111111</NPOLIS>
+			<CONTACTS>
+				<PHONE_M>89541594657</PHONE_M>
+				<EMAIL>test.user@mail.ru</EMAIL>
+				<ADDRESS>край Забайкальский, г. Чита, ул. Ленина &amp; Ко, дом &quot;5&apos;А&quot; (&lt;офис 2&gt;)</ADDRESS>
+			</CONTACTS>			
+			<QUARTER>3</QUARTER>
+			<LPU1>3</LPU1>
+			<DEPTH>9</DEPTH>
+			<SS_DOC>22009237637</SS_DOC>
+			<COMMENT>Тест спецсимволов: &amp; &lt; &gt; &quot; &apos;</COMMENT>
+		</PERS>
+	</EVENT>
+</ZL_LIST>
