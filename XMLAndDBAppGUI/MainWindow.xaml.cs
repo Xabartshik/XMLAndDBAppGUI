@@ -1,8 +1,7 @@
-﻿using Microsoft.Data.Sqlite;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
-using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Documents;
@@ -69,7 +68,7 @@ namespace XMLAndDBAppGUI
                 DgEvents.ItemsSource = null;
                 DgPersons.ItemsSource = null;
 
-                Log("\n[ИНФО] База данных успешно очищена. Счетчики ID сброшены.", Colors.Yellow);
+                Log("\n[ИНФО] База данных успешно очищена.", Colors.Yellow);
                 TxtStatus.Text = "БД очищена";
             }
             catch (Exception ex)
@@ -80,54 +79,15 @@ namespace XMLAndDBAppGUI
         }
 
         /// <summary>
-        /// Выполняет полную очистку таблиц SQLite и сброс счетчиков AUTOINCREMENT
+        /// Выполняет полную очистку таблиц через ORM.
         /// </summary>
         private void ClearDatabase()
         {
-            string connString = $"Data Source={_dbPath}";
-
-            using (var conn = new SqliteConnection(connString))
-            {
-                conn.Open();
-
-                using (var tran = conn.BeginTransaction())
-                {
-                    try
-                    {
-                        using (var cmd = conn.CreateCommand())
-                        {
-                            cmd.Transaction = tran;
-                            cmd.CommandText = @"
-                        PRAGMA foreign_keys = OFF;
-
-                        DELETE FROM CONTACTS;
-                        DELETE FROM PERS;
-                        DELETE FROM EVENT;
-                        DELETE FROM ZGLV;
-
-                        DELETE FROM sqlite_sequence WHERE name IN ('CONTACTS', 'PERS', 'EVENT', 'ZGLV');
-
-                        PRAGMA foreign_keys = ON;";
-
-                            cmd.ExecuteNonQuery();
-                        }
-
-                        tran.Commit();
-                    }
-                    catch
-                    {
-                        tran.Rollback();
-                        throw;
-                    }
-                }
-
-                // Вызываем VACUUM для сжатия файла базы данных на диске
-                using (var cmdVacuum = conn.CreateCommand())
-                {
-                    cmdVacuum.CommandText = "VACUUM;";
-                    cmdVacuum.ExecuteNonQuery();
-                }
-            }
+            using var database = RegistryDbContextFactory.Create(_dbPath);
+            using var transaction = database.Database.BeginTransaction();
+            database.Registries.RemoveRange(database.Registries);
+            database.SaveChanges();
+            transaction.Commit();
         }
         private async void BtnProcess_Click(object sender, RoutedEventArgs e)
         {
@@ -182,8 +142,8 @@ namespace XMLAndDBAppGUI
                 }
                 Log($"✔ Успешно прочитан заголовок файла: {xmlData.Header.FileName}");
 
-                // 3. Сохранение в БД SQLite под контролем триггеров
-                Log("\n3. Сохранение данных в SQLite в единой транзакции...");
+                // 3. Сохранение в БД через ORM в единой транзакции
+                Log("\n3. Сохранение данных через ORM в единой транзакции...");
                 var result = processor.ProcessFile(xmlPath, xmlData);
 
                 if (result.Success)
@@ -230,42 +190,41 @@ namespace XMLAndDBAppGUI
         }
 
         /// <summary>
-        /// Вычитывает данные из SQLite для отображения во вкладках DataGrid
+        /// Вычитывает данные через ORM для отображения во вкладках DataGrid.
         /// </summary>
         private void LoadDataToGrids()
         {
-            string connString = $"Data Source={_dbPath}";
-            using var conn = new SqliteConnection(connString);
-            conn.Open();
+            using var database = RegistryDbContextFactory.Create(_dbPath);
 
-            // Таблица Events
-            using var cmdEvt = conn.CreateCommand();
-            cmdEvt.CommandText = @"
-                SELECT e.ID, z.FILENAME, e.DISP, e.KOL_M AS 'Заявлено М', e.KOL_W AS 'Заявлено Ж',
-                       (SELECT COUNT(*) FROM PERS p WHERE p.EVENT_ID = e.ID AND p.W = 1) AS 'Факт М',
-                       (SELECT COUNT(*) FROM PERS p WHERE p.EVENT_ID = e.ID AND p.W = 2) AS 'Факт Ж'
-                FROM EVENT e
-                JOIN ZGLV z ON e.ZGLV_ID = z.ID;";
-            var dtEvents = new DataTable();
-            using (var reader = cmdEvt.ExecuteReader())
-            {
-                dtEvents.Load(reader);
-            }
-            DgEvents.ItemsSource = dtEvents.DefaultView;
+            DgEvents.ItemsSource = database.Events
+                .Select(item => new EventGridRow
+                {
+                    Id = item.Id,
+                    FileName = item.Registry.FileName,
+                    Disp = item.Disp,
+                    DeclaredMen = item.KolM,
+                    DeclaredWomen = item.KolW,
+                    ActualMen = item.Persons.Count(person => person.Gender == 1),
+                    ActualWomen = item.Persons.Count(person => person.Gender == 2)
+                })
+                .ToList();
 
-            // Таблица Persons
-            using var cmdPers = conn.CreateCommand();
-            cmdPers.CommandText = @"
-                SELECT p.ID, p.EVENT_ID, p.N_ZAP, p.ID_PAC, 
-                       CASE WHEN p.W = 1 THEN 'Муж' ELSE 'Жен' END AS Пол,
-                       p.DR, p.NPOLIS, p.LPU1, p.DS_D 
-                FROM PERS p LIMIT 500;";
-            var dtPersons = new DataTable();
-            using (var reader = cmdPers.ExecuteReader())
-            {
-                dtPersons.Load(reader);
-            }
-            DgPersons.ItemsSource = dtPersons.DefaultView;
+            DgPersons.ItemsSource = database.Persons
+                .OrderBy(item => item.Id)
+                .Take(500)
+                .Select(item => new PersonGridRow
+                {
+                    Id = item.Id,
+                    EventId = item.EventId,
+                    NZap = item.NZap,
+                    IdPac = item.IdPac,
+                    Gender = item.Gender == 1 ? "Муж" : "Жен",
+                    Dr = item.Dr,
+                    NPolis = item.NPolis,
+                    Lpu1 = item.Lpu1,
+                    DsD = item.DsD
+                })
+                .ToList();
         }
     }
 }
