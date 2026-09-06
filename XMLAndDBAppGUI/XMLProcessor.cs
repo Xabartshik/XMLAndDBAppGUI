@@ -50,13 +50,12 @@ public class XmlProcessor
 
     public bool ValidateXml(string xmlPath, out List<string> validationErrors)
     {
-        var errors = new List<string>();
-        validationErrors = errors;
+        validationErrors = new List<string>();
         var settings = new XmlReaderSettings();
         settings.Schemas.Add(null, _xsdPath);
         settings.ValidationType = ValidationType.Schema;
         settings.ValidationEventHandler += (_, args) =>
-            errors.Add($"[Строка {args.Exception.LineNumber}, Позиция {args.Exception.LinePosition}]: {args.Message}");
+            validationErrors.Add($"[Строка {args.Exception.LineNumber}, Позиция {args.Exception.LinePosition}]: {args.Message}");
 
         using var reader = XmlReader.Create(xmlPath, settings);
         while (reader.Read()) { }
